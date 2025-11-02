@@ -1,14 +1,31 @@
 # .pre-commit-config.yaml
+
 repos:
+# --- Hook pour le formatage du code (uniquement au commit) ---
+-   repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+    -   id: black
+        # Ce hook est rapide et corrige les fichiers. Idéal pour le commit.
+        # Par défaut (sans 'stages' ), il ne s'exécute qu'au commit.
+
+# --- Hook pour le linting (au commit ET au push) ---
+-   repo: https://github.com/pycqa/flake8
+    rev: 7.3.0
+    hooks:
+    -   id: flake8
+        # Ajout du stage 'push' pour une double vérification
+        stages: [pre-commit, pre-push]
+
+# --- Hook pour le typage statique (au commit ET au push ) ---
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.10.0  # Utilisez une version récente de mypy
+    rev: v1.10.0 # J'ai remis v1.10.0 qui est stable, mais v1.18.2 est aussi un bon choix.
     hooks:
     -   id: mypy
-        # Mypy a besoin des dépendances de votre projet pour bien fonctionner.
-        # Listez ici les paquets qui ont des annotations de type.
+        args: [--strict]
         additional_dependencies: [
-            # Par exemple, si vous utilisez requests:
-            # 'types-requests',
-            # Si vous utilisez Django:
-            # 'django-stubs'
+            'types-flask'
         ]
+        # Ajout du stage 'push' pour la validation finale
+        stages: [pre-commit, pre-push]
+
