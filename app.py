@@ -1,4 +1,6 @@
 # app.py
+import os # <-- Import inutilisé, mais flake8 le verra déjà.
+une_variable_totalement_inutilisee = "ceci est une erreur" # <-- Ajoutons cette ligne
 
 from flask import Flask, render_template, request, flash
 from typing import Tuple, Union
