@@ -1,0 +1,24 @@
+<!-- templates/resultat.html -->
+{% extends "base.html" %}
+
+{% block title %}Résultat{% endblock %}
+
+{% block content %}
+    <h2>Résultat pour l'équation : {{ a }}x² + {{ b }}x + {{ c }} = 0</h2>
+
+    <div class="result-box">
+        {% set racine1, racine2 = resultat %}
+        {% if racine1 == racine2 %}
+            <h3>Racine double :</h3>
+            <!-- On utilise notre nouvelle fonction de formatage -->
+            <p>x₁ = x₂ = {{ formater_racine(racine1) }}</p>
+        {% else %}
+            <h3>Racines distinctes :</h3>
+            <!-- On utilise notre nouvelle fonction de formatage -->
+            <p>x₁ = {{ formater_racine(racine1) }}</p>
+            <p>x₂ = {{ formater_racine(racine2) }}</p>
+        {% endif %}
+    </div>
+
+    <a href="/" class="back-link">← Nouvelle équation</a>
+{% endblock %}

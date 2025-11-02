@@ -1,14 +1,30 @@
 # .pre-commit-config.yaml
+
 repos:
+# --- Hook pour le formatage du code ---
+-   repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+    -   id: black
+        # Recommandé de spécifier la version de Python pour que Black formate le code de manière compatible.
+        # language_version: python3.11 # Mettez votre version de Python
+
+# --- Hook pour le linting (style et erreurs simples ) ---
+-   repo: https://github.com/pycqa/flake8
+    rev: 7.3.0   # Version récente de flake8
+    hooks:
+    -   id: flake8
+
+# --- Hook pour le typage statique (maintenant plus strict ) ---
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.10.0  # Utilisez une version récente de mypy
+    rev: v1.18.2
     hooks:
     -   id: mypy
-        # Mypy a besoin des dépendances de votre projet pour bien fonctionner.
-        # Listez ici les paquets qui ont des annotations de type.
+        # On ajoute des arguments pour rendre mypy plus strict
+        args: [--strict]
         additional_dependencies: [
-            # Par exemple, si vous utilisez requests:
+            'types-flask'
+            # Listez ici les paquets avec des types, comme avant
             # 'types-requests',
-            # Si vous utilisez Django:
             # 'django-stubs'
         ]
