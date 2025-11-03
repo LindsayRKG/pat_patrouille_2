@@ -16,7 +16,7 @@ def resoudre_equation_second_degre(
     if a == 0:
         return "Le coefficient 'a' ne peut pas être nul."
 
-    delta = (b**2) + (4 * a * c)
+    delta = (b**2) - (4 * a * c)
     racine1 = (-b - cmath.sqrt(delta)) / (2 * a)
     racine2 = (-b + cmath.sqrt(delta)) / (2 * a)
     return (racine1, racine2)
