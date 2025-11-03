@@ -1,24 +1,68 @@
 <!-- templates/resultat.html -->
 {% extends "base.html" %}
 
-{% block title %}Résultat{% endblock %}
+{% block title %}Résultats de l'Équation{% endblock %}
 
 {% block content %}
-    <h2>Résultat pour l'équation : {{ a }}x² + {{ b }}x + {{ c }} = 0</h2>
+<div class="result-header">
+    <h2>🎉 Résolution terminée !</h2>
+    <p class="equation-display">
+        Pour l'équation : 
+        <strong class="equation">
+            {{ a }}x² 
+            <span class="coefficient">{{ "+ " if b >= 0 else "- " }}{{ b|abs }}</span>x 
+            <span class="coefficient">{{ "+ " if c >= 0 else "- " }}{{ c|abs }}</span> = 0
+        </strong>
+    </p>
+</div>
 
-    <div class="result-box">
-        {% set racine1, racine2 = resultat %}
-        {% if racine1 == racine2 %}
-            <h3>Racine double :</h3>
-            <!-- On utilise notre nouvelle fonction de formatage -->
-            <p>x₁ = x₂ = {{ formater_racine(racine1) }}</p>
-        {% else %}
-            <h3>Racines distinctes :</h3>
-            <!-- On utilise notre nouvelle fonction de formatage -->
-            <p>x₁ = {{ formater_racine(racine1) }}</p>
-            <p>x₂ = {{ formater_racine(racine2) }}</p>
-        {% endif %}
+<div class="result-box">
+    {% set racine1, racine2 = resultat %}
+    {% set delta = (b**2) - (4 * a * c) %}
+    
+    <div class="discriminant-info">
+        <h3>📊 Analyse du discriminant</h3>
+        <p>
+            Δ = b² - 4ac = 
+            <strong>{{ b }}² - 4×{{ a }}×{{ c }} = {{ delta }}</strong>
+        </p>
+        <p class="discriminant-type">
+            {% if delta > 0 %}
+                📈 Discriminant positif : 2 racines réelles distinctes
+            {% elif delta == 0 %}
+                ⚖️ Discriminant nul : 1 racine réelle double
+            {% else %}
+                🌀 Discriminant négatif : 2 racines complexes conjuguées
+            {% endif %}
+        </p>
     </div>
 
-    <a href="/" class="back-link">← Nouvelle équation</a>
+    <div class="solutions">
+        <h3>🎯 Solutions</h3>
+        {% if racine1 == racine2 %}
+            <div class="solution-item double-root">
+                <span class="solution-label">Racine double :</span>
+                <span class="solution-value">x₁ = x₂ = {{ formater_racine(racine1) }}</span>
+            </div>
+        {% else %}
+            <div class="solution-item">
+                <span class="solution-label">Première racine :</span>
+                <span class="solution-value">x₁ = {{ formater_racine(racine1) }}</span>
+            </div>
+            <div class="solution-item">
+                <span class="solution-label">Deuxième racine :</span>
+                <span class="solution-value">x₂ = {{ formater_racine(racine2) }}</span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="action-buttons">
+    <a href="/" class="back-link">
+        ↩️ Résoudre une nouvelle équation
+    </a>
+    <button onclick="window.location.href='/'" class="new-equation-btn">
+        🧮 Nouvelle équation
+    </button>
+</div>
 {% endblock %}

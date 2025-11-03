@@ -4,30 +4,126 @@
 {% block title %}Accueil - Solveur{% endblock %}
 
 {% block content %}
-    <h2>Entrez les coefficients de l'équation ax² + bx + c = 0</h2>
+<div class="hero-section">
+    <h2>🧮 Entrez les coefficients de l'équation ax² + bx + c = 0</h2>
+    <p class="description">
+        Résolvez vos équations du second degré en quelques secondes
+    </p>
+</div>
 
-    <!-- Affiche les messages d'erreur flash s'il y en a -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="flash {{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+<!-- Messages d'erreur -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">
+                <strong>{% if category == 'error' %}⚠️{% else %}✅{% endif %}</strong>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
-    <form action="/resoudre" method="post" class="equation-form">
-        <div class="form-group">
-            <label for="a">a =</label>
-            <input type="number" id="a" name="a" step="any" value="{{ a or '' }}" required>
-        </div>
-        <div class="form-group">
-            <label for="b">b =</label>
-            <input type="number" id="b" name="b" step="any" value="{{ b or '' }}" required>
-        </div>
-        <div class="form-group">
-            <label for="c">c =</label>
-            <input type="number" id="c" name="c" step="any" value="{{ c or '' }}" required>
-        </div>
-        <button type="submit">Résoudre</button>
-    </form>
+<form action="/resoudre" method="post" class="equation-form">
+    <div class="form-group">
+        <label for="a">a =</label>
+        <input type="number" id="a" name="a" step="any" value="{{ a or '' }}" required>
+        <span class="input-hint">(coefficient de x²)</span>
+    </div>
+    
+    <div class="form-group">
+        <label for="b">b =</label>
+        <input type="number" id="b" name="b" step="any" value="{{ b or '' }}" required>
+        <span class="input-hint">(coefficient de x)</span>
+    </div>
+    
+    <div class="form-group">
+        <label for="c">c =</label>
+        <input type="number" id="c" name="c" step="any" value="{{ c or '' }}" required>
+        <span class="input-hint">(terme constant)</span>
+    </div>
+    
+    <button type="submit" class="solve-button">
+        🎯 Résoudre l'équation
+    </button>
+</form>
+
+<div class="info-box">
+    <h3>💡 Comment utiliser ce solveur ?</h3>
+    <ul>
+        <li>Entrez les coefficients <strong>a</strong>, <strong>b</strong> et <strong>c</strong> de votre équation</li>
+        <li>Le coefficient <strong>a</strong> doit être différent de zéro</li>
+        <li>Cliquez sur "Résoudre" pour obtenir les solutions</li>
+        <li>Les racines complexes sont automatiquement gérées</li>
+    </ul>
+</div>
+
+<style>
+.hero-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.hero-section h2 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+}
+
+.description {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+.input-hint {
+    font-size: 0.8rem;
+    color: #95a5a6;
+    font-style: italic;
+    margin-left: 0.5rem;
+}
+
+.info-box {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid #3498db;
+}
+
+.info-box h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.info-box ul {
+    list-style: none;
+    padding: 0;
+}
+
+.info-box li {
+    padding: 0.5rem 0;
+    color: #34495e;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.info-box li:before {
+    content: "•";
+    color: #3498db;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+.solve-button {
+    margin-top: 1rem;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.solve-button:hover {
+    background: linear-gradient(135deg, #2980b9, #1f618d);
+    transform: translateY(-2px);
+}
+</style>
 {% endblock %}
