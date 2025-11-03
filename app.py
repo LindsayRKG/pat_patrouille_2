@@ -55,7 +55,7 @@ def index() -> str:
 def resoudre() -> str:
     """Traite les données du formulaire et affiche le résultat."""
     try:
-        a = float(request.form["a"]
+        a = float(request.form["a"])
         b = float(request.form["b"])
         c = float(request.form["c"])
     except (ValueError, KeyError):
