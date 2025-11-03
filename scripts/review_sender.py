@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from typing import List, Optional
 
 # On utilise bien la bibliothèque 'google-generativeai'
-from google import genai  # type: ignore
+from google import generativeai as genai  # type: ignore
 
 # --- Configuration ---
 GEMINI_API_KEY: str = os.environ.get("GEMINI_API_KEY", "")
@@ -71,7 +71,7 @@ def get_ai_review(prompt: str) -> str:
         genai.configure(api_key=GEMINI_API_KEY)
 
         # --- CORRECTION FINALE : Utilisation du nom de modèle le plus stable et explicite ---
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-1.0-pro")
 
         response = model.generate_content(prompt)
 
