@@ -7,7 +7,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import List, Optional
 
-# google-generativeai n'a pas de stubs officiels, on ignore l'erreur mypy.
+# On utilise bien la bibliothèque 'google-generativeai'
 from google import generativeai as genai  # type: ignore
 
 # --- Configuration ---
@@ -70,9 +70,8 @@ def get_ai_review(prompt: str) -> str:
     try:
         genai.configure(api_key=GEMINI_API_KEY)
 
-        # --- CORRECTION FINALE : Utilisation du modèle le plus stable ---
-        # 'gemini-pro-vision' est largement disponible et gère parfaitement le texte.
-        model = genai.GenerativeModel("gemini-pro-vision")
+        # --- CORRECTION FINALE : On utilise le modèle standard 'gemini-pro' ---
+        model = genai.GenerativeModel("gemini-pro")
 
         response = model.generate_content(prompt)
 
@@ -86,6 +85,7 @@ def get_ai_review(prompt: str) -> str:
 
 def send_email(recipient: str, subject: str, html_body: str) -> None:
     """Envoie l'email HTML via SMTP (Gmail)."""
+    # Le reste de la fonction est identique et correct
     try:
         msg = MIMEMultipart("alternative")
         msg["From"] = SENDER_EMAIL
