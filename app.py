@@ -12,7 +12,7 @@ import cmath
 def resoudre_equation_second_degre(
     a: float, b: float, c: float
 ) -> Union[str, Tuple[complex, complex]]:
-    """Resolve l'équation ax² + bx + c = 0."""
+    """Résout l'équation ax² + bx + c = 0."""
     if a == 0:
         return "Le coefficient 'a' ne peut pas être nul."
 
