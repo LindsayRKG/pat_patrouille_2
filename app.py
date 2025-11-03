@@ -47,7 +47,7 @@ app.secret_key = "une-cle-secrete-tres-difficile-a-deviner"
 
 @app.route("/")
 def index() -> str:
-    """Affiche la page d'accueil avec le formulaire."""
+    """Affiche la page home avec le formulaire."""
     return render_template("index.html")
 
 
