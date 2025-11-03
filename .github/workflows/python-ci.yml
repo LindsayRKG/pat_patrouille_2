@@ -29,7 +29,6 @@ jobs:
 
   # --- JOB 2 : REVUE DE CODE PAR IA ET ENVOI D'EMAIL ---
   ai-code-review:
-    if: github.event_name == 'push'
     # 'needs' définit la dépendance, le job attend que 'type-checking' se termine.
     needs: type-checking
     # 'if: always()' garantit que ce job s'exécute MÊME SI 'type-checking' a échoué.
