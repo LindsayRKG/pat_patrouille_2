@@ -117,7 +117,7 @@ if __name__ == "__main__":
     elif PREVIOUS_JOB_STATUS == "success":
         email_subject = "✅ Revue de Code Automatisée - Push réussi"
     else:
-        email_subject = "Revue de Code Automatisée - Push sur ai-projet-git"
+        email_subject = "Revue  de Code Automatisée - Push sur ai-projet-git"
 
     # 2. Préparer le prompt et obtenir la revue de l'IA
     review_prompt = generate_prompt(CHANGED_FILES)
