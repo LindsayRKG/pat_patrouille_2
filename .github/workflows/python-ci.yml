@@ -9,8 +9,8 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  # --- JOB 1 : VÉRIFICATION DU TYPAGE ---
-  type-checking:
+  # --- JOB 1 : VÉRIFICATION DE LA QUALITÉ DU CODE ---
+  lint-and-type-check: # J'ai renommé le job
     runs-on: ubuntu-latest
     steps:
     - name: Récupération du code
@@ -23,18 +23,19 @@ jobs:
     - name: Installation des dépendances
       run: |
         python -m pip install --upgrade pip
-        # On installe pre-commit et les dépendances du projet
-        pip install pre-commit
         pip install -r requirements.txt
 
-    # On utilise la même commande qu'en local pour la cohérence
-    - name: Lancement des contrôles de qualité avec pre-commit
-      run: pre-commit run --all-files
+    - name: Lancement de Flake8
+      # Flake8 lira automatiquement le fichier .flake8 à la racine
+      run: flake8 .
+
+    - name: Lancement de Mypy
+      run: python -m mypy . --strict
 
   # --- JOB 2 : REVUE DE CODE PAR IA ET ENVOI D'EMAIL ---
   ai-code-review:
-    needs: type-checking
-    if: always() && github.event_name == 'push'
+    needs: lint-and-type-check # On met à jour la dépendance
+    if: always( ) && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
     # ... (le reste du job est inchangé)
@@ -55,7 +56,7 @@ jobs:
         python scripts/review_sender.py \
           "${{ github.event.pusher.email }}" \
           "$FILES_CHANGED" \
-          "${{ needs.type-checking.result }}"
+          "${{ needs.lint-and-type-check.result }}" # On met à jour la dépendance
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
