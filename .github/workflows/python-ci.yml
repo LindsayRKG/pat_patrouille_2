@@ -29,10 +29,11 @@ jobs:
 
   # --- JOB 2 : REVUE DE CODE PAR IA ET ENVOI D'EMAIL ---
   ai-code-review:
-    if: github.event_name == 'push'
     # 'needs' définit la dépendance, le job attend que 'type-checking' se termine.
     needs: type-checking
-    # 'if: always()' garantit que ce job s'exécute MÊME SI 'type-checking' a échoué.
+    
+    # CONDITION UNIQUE ET CORRECTE :
+    # S'exécute toujours (après le job 'needs') ET seulement si l'événement est un 'push'.
     if: always() && github.event_name == 'push'
     
     runs-on: ubuntu-latest
@@ -54,7 +55,6 @@ jobs:
     - name: Exécution du script de revue de code
       run: |
         FILES_CHANGED=$(git diff --name-only HEAD~1 HEAD)
-        # On passe le statut du job précédent comme 3ème argument
         python scripts/review_sender.py \
           "${{ github.event.pusher.email }}" \
           "$FILES_CHANGED" \
