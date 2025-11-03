@@ -1,49 +1,21 @@
 # app.py
-import os # <-- Import inutilisé, mais flake8 le verra déjà.
-une_variable_totalement_inutilisee = "ceci est une erreur" # <-- Ajoutons cette ligne
 
-from flask import Flask, render_template, request, flash
-from typing import Tuple, Union
-import cmath
+"""
+Module principal de l'application Flask pour le solveur d'équations.
+Définit les routes et la logique de l'interface web.
+"""
 
-# --- 1. Logique métier ---
+from flask import Flask, render_template, request
+from typing import Dict, Union, Callable
 
-
-def resoudre_equation_second_degre(
-    a: float, b: float, c: float
-) -> Union[str, Tuple[complex, complex]]:
-    """Résout l'équation ax² + bx + c = 0."""
-    if a == 0:
-        return "Le coefficient 'a' ne peut pas être nul."
-
-    delta = (b**2) - (4 * a * c)
-    racine1 = (-b - cmath.sqrt(delta)) / (2 * a)
-    racine2 = (-b + cmath.sqrt(delta)) / (2 * a)
-    return (racine1, racine2)
+from solveur_equation import resoudre_equation
 
 
-# --- NOUVELLE FONCTION D'AIDE POUR LE FORMATAGE ---
-def formater_racine(racine: complex) -> str:
-    """Formate un nombre complexe pour un affichage lisible."""
-    # Arrondit à 2 décimales pour éviter les imprécisions de float
-    real_part = round(racine.real, 2)
-    imag_part = round(racine.imag, 2)
-
-    if imag_part == 0:
-        # C'est un nombre réel
-        return f"{real_part:.2f}"
-    else:
-        # C'est un nombre complexe, on le formate joliment
-        signe = "+" if imag_part > 0 else "-"
-        return f"{real_part:.2f} {signe} {abs(imag_part):.2f}j"
-
-
-# --- 2. Application Flask ---
-
+# --- Initialisation de l'application ---
 app = Flask(__name__)
-# Clé secrète nécessaire pour utiliser `flash` (messages d'erreur)
-app.secret_key = "une-cle-secrete-tres-difficile-a-deviner"
 
+
+# --- Définition des routes ---
 
 @app.route("/")
 def index() -> str:
@@ -53,33 +25,36 @@ def index() -> str:
 
 @app.route("/resoudre", methods=["POST"])
 def resoudre() -> str:
-    """Traite les  données du  formulaire et affiche  le résultat."""
+    """Traite les données du formulaire et affiche le résultat."""
     try:
         a = float(request.form["a"])
         b = float(request.form["b"])
         c = float(request.form["c"])
     except (ValueError, KeyError):
-        flash("Entrée invalide. Veuillez fournir trois nombres .", "error")
-        return render_template("index.html")
+        erreur = "Veuillez entrer des nombres valides pour les coefficients a, b et c."
+        return render_template("index.html", erreur=erreur)
 
-    resultat = resoudre_equation_second_degre(a, b, c)
+    resultat = resoudre_equation(a, b, c)
+    return render_template("resultat.html", a=a, b=b, c=c, resultat=resultat)
 
-    if isinstance(resultat, str):
-        flash(resultat, "error")
-        return render_template("index.html", a=a, b=b, c=c)
+
+def formater_racine(racine: Union[float, complex]) -> str:
+    """Formate une racine (réelle ou complexe) pour l'affichage."""
+    if isinstance(racine, complex):
+        partie_reelle = f"{racine.real:.2f}"
+        partie_imaginaire = f"{abs(racine.imag):.2f}"
+        signe = "+" if racine.imag >= 0 else "-"
+        return f"{partie_reelle} {signe} {partie_imaginaire}i"
     else:
-        # Affiche la page de résultat en passant la fonction de formatage
-        return render_template(
-            "resultat.html",
-            a=a,
-            b=b,
-            c=c,
-            resultat=resultat,
-            formater_racine=formater_racine,  # <-- L'ajout important est ici
-        )
+        return f"{racine:.2f}"
 
 
-# --- 3. Point d'entrée ---
+@app.context_processor
+def inject_utils() -> Dict[str, Callable[[Union[float, complex]], str]]:
+    """Injecte des fonctions utiles dans le contexte des templates."""
+    return dict(formater_racine=formater_racine)
 
+
+# --- Point d'entrée pour l'exécution directe ---
 if __name__ == "__main__":
     app.run(debug=True)
