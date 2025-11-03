@@ -45,7 +45,14 @@ Installez les hooks dans votre configuration Git locale. `pre-commit` se charger
 
 ```bash
 pre-commit install
+
+ou
+
+python -m pre_commit install
+
 ```
+python -m pre_commit run --all-files
+
 Et c'est tout ! Votre environnement est prêt.
 
 ## Comment ça marche au quotidien ?
