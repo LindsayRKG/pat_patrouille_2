@@ -7,7 +7,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import List, Optional
 
-# On importe le paquet et on le renomme "genai" pour l'utiliser dans le code
 from google import generativeai as genai  # type: ignore
 
 # --- Configuration ---
@@ -42,15 +41,19 @@ def get_file_content(file_path: str) -> str:
 
 def generate_prompt(changed_files: List[str]) -> str:
     """Génère le prompt pour l'IA en incluant le contenu des fichiers."""
+    # On coupe la longue chaîne de caractères en plusieurs parties
     prompt = (
-        "Vous êtes un expert en revue de code. Votre tâche est d'analyser les changements de code suivants, "
-        "en vous concentrant sur la qualité, la cohérence, les erreurs potentielles et les améliorations. "
-        "Après l'analyse, vous devez générer une réponse **uniquement** sous forme de code HTML complet et esthétique "
-        "pour un e-mail de feedback. L'e-mail doit être très beau, professionnel et convivial. "
-        "Si le code est impeccable, dites-le. S'il y a des erreurs ou des suggestions, mentionnez-les clairement, "
-        "en indiquant les lignes si possible, et proposez des corrections. "
-        "Le code HTML doit être complet (avec <html>, <body>, etc.) et utiliser des styles en ligne (CSS) "
-        "pour garantir un bon affichage dans tous les clients de messagerie. Utilisez une palette de couleurs agréable (par exemple, bleu, vert, gris clair)."
+        "Vous êtes un expert en revue de code. Votre tâche est d'analyser les "
+        "changements de code suivants, en vous concentrant sur la qualité, la "
+        "cohérence, les erreurs potentielles et les améliorations. Après "
+        "l'analyse, vous devez générer une réponse **uniquement** sous forme "
+        "de code HTML complet et esthétique pour un e-mail de feedback. "
+        "L'e-mail doit être très beau, professionnel et convivial. Si le code "
+        "est impeccable, dites-le. S'il y a des erreurs ou des suggestions, "
+        "mentionnez-les clairement, en indiquant les lignes si possible, et "
+        "proposez des corrections. Le code HTML doit être complet (avec "
+        "<html>, <body>, etc.) et utiliser des styles en ligne (CSS) pour "
+        "garantir un bon affichage. Utilisez une palette de couleurs agréable."
         "\n\n"
         "--- Fichiers Modifiés ---\n"
     )
@@ -63,25 +66,24 @@ def generate_prompt(changed_files: List[str]) -> str:
     return prompt
 
 
-# --- FONCTION CORRIGÉE SELON LA SYNTAXE COMPATIBLE ---
 def get_ai_review(prompt: str) -> str:
     """Appelle l'API Gemini pour obtenir la revue de code HTML."""
     try:
-        # On utilise la syntaxe genai.Client() qui correspond à la version 0.4.0
         client = genai.Client(api_key=GEMINI_API_KEY)
-
-        # On utilise un nom de modèle compatible avec cette version
         response = client.models.generate_content(
-            model="models/gemini-pro",  # 'gemini-pro' est le plus standard
+            model="models/gemini-pro",
             contents=prompt,
         )
-
         html_content: str = response.text.strip()
         if html_content.startswith("```html"):
             html_content = html_content.strip("```html").strip("```").strip()
         return html_content
     except Exception as e:
-        return f"<h1>Erreur d'API Gemini</h1><p>Impossible d'obtenir la revue de code. Erreur: {e}</p>"
+        # On coupe le long message d'erreur
+        return (
+            "<h1>Erreur d'API Gemini</h1>"
+            f"<p>Impossible d'obtenir la revue de code. Erreur: {e}</p>"
+        )
 
 
 def send_email(recipient: str, subject: str, html_body: str) -> None:
@@ -99,7 +101,11 @@ def send_email(recipient: str, subject: str, html_body: str) -> None:
         server.close()
         print(f"Succès: Email de revue de code envoyé à {recipient}")
     except Exception as e:
-        print(f"Erreur: Échec de l'envoi de l'email à {recipient}. Erreur: {e}")
+        # On coupe le long message d'erreur
+        print(
+            f"Erreur: Échec de l'envoi de l'email à {recipient}. "
+            f"Vérifiez le mot de passe d'application Gmail. Erreur: {e}"
+        )
         print("\n--- Contenu HTML non envoyé (pour débogage) ---\n")
         print(html_body)
         print("\n----------------------------------------------------\n")
@@ -111,7 +117,9 @@ if __name__ == "__main__":
     print(f"Statut du job de vérification: {PREVIOUS_JOB_STATUS}")
 
     if PREVIOUS_JOB_STATUS == "failure":
-        email_subject = "❌ Action Requise : Votre push a échoué aux vérifications de qualité"
+        email_subject = (
+            "❌ Action Requise : Votre push a échoué aux vérifications de qualité"
+        )
     elif PREVIOUS_JOB_STATUS == "success":
         email_subject = "✅ Revue de Code Automatisée - Push réussi"
     else:
