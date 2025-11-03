@@ -1,0 +1,28 @@
+# .flake8
+
+[flake8]
+# --- Comportement de base ---
+# Ignorer des erreurs spécifiques pour tout le projet.
+# E501: Ligne trop longue (on laisse black gérer ça, mais on met une limite généreuse)
+# W503: Coupure de ligne avant un opérateur binaire (black fait le contraire)
+# F401: Module importé mais non utilisé (très utile, mais on peut l'ignorer si besoin)
+ignore = W503
+
+# Longueur de ligne maximale autorisée. 88 est le standard de Black.
+max-line-length = 88
+
+# --- Fichiers et dossiers à exclure ---
+# Ne pas vérifier les dépendances dans l'environnement virtuel,
+# ni les fichiers de configuration Git ou les caches.
+exclude =
+    .venv,
+    .git,
+    __pycache__,
+    .pytest_cache,
+    # Vous pouvez ajouter d'autres dossiers ici si nécessaire
+    # par exemple: docs/
+
+# --- Complexité du code ---
+# Avertir si une fonction est trop complexe (trop de branches, de boucles, etc.).
+# 10 est une bonne valeur par défaut.
+max-complexity = 10
