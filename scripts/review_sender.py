@@ -65,17 +65,15 @@ def generate_prompt(changed_files: List[str]) -> str:
     return "".join(prompt_parts)
 
 
-# --- FONCTION MISE À JOUR ---
 def get_ai_review(prompt: str) -> str:
     """Appelle l'API Gemini pour obtenir la revue de code HTML."""
     try:
-        # Étape 1 : Configurer l'API avec la clé
         genai.configure(api_key=GEMINI_API_KEY)
 
-        # Étape 2 : Créer le modèle
-        model = genai.GenerativeModel("gemini-1.5-flash") # Utilisation du modèle recommandé
+        # --- CORRECTION : Utilisation du modèle 'gemini-pro' ---
+        # C'est le modèle standard, stable et éprouvé pour les tâches textuelles.
+        model = genai.GenerativeModel("gemini-pro")
 
-        # Étape 3 : Générer le contenu
         response = model.generate_content(prompt)
 
         html_content: str = response.text.strip()
@@ -83,7 +81,6 @@ def get_ai_review(prompt: str) -> str:
             html_content = html_content.strip("```html").strip("```").strip()
         return html_content
     except Exception as e:
-        # On retourne une erreur plus détaillée
         return f"<h1>Erreur d'API Gemini</h1><p>Impossible d'obtenir la revue de code. Détails de l'erreur : {e}</p>"
 
 
