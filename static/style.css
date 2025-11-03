@@ -32,7 +32,7 @@ body {
 
 /* === HEADER === */
 header {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(211, 208, 208, 0.95);
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 20px rgba(0,0,0,0.1);
     padding: 1.5rem;
@@ -352,7 +352,7 @@ button:hover, .solve-button:hover {
 
 /* === FOOTER === */
 footer {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(34, 32, 32, 0.8);
     color: white;
     text-align: center;
     padding: 1.5rem;
