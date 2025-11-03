@@ -53,13 +53,13 @@ def index() -> str:
 
 @app.route("/resoudre", methods=["POST"])
 def resoudre() -> str:
-    """Traite les données du formulaire et affiche le résultat."""
+    """Traite les  données du  formulaire et affiche  le résultat."""
     try:
         a = float(request.form["a"])
         b = float(request.form["b"])
         c = float(request.form["c"])
     except (ValueError, KeyError):
-        flash("Entrée invalide. Veuillez fournir trois nombres.", "error")
+        flash("Entrée invalide. Veuillez fournir trois nombres .", "error")
         return render_template("index.html")
 
     resultat = resoudre_equation_second_degre(a, b, c)
