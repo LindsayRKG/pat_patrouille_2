@@ -8,7 +8,8 @@ from email.mime.text import MIMEText
 from typing import List, Optional
 
 # On utilise bien la bibliothèque 'google-generativeai'
-from google import generativeai as genai  # type: ignore
+# et on ignore les erreurs de type car elle n'a pas de stubs
+from google import genai  # type: ignore
 
 # --- Configuration ---
 GEMINI_API_KEY: str = os.environ.get("GEMINI_API_KEY", "")
@@ -65,18 +66,18 @@ def generate_prompt(changed_files: List[str]) -> str:
     return "".join(prompt_parts)
 
 
-# --- FONCTION CORRIGÉE AVEC LA SYNTAXE MODERNE ET UN MODÈLE STABLE ---
+# --- FONCTION CORRIGÉE SELON VOTRE SNIPPET OFFICIEL ---
 def get_ai_review(prompt: str) -> str:
     """Appelle l'API Gemini pour obtenir la revue de code HTML."""
     try:
-        # Étape 1 : Configurer l'API avec la clé (syntaxe moderne)
-        genai.configure(api_key=GEMINI_API_KEY)
+        # On utilise la syntaxe avec genai.Client() comme demandé
+        client = genai.Client(api_key=GEMINI_API_KEY)
 
-        # Étape 2 : Créer le modèle avec un nom stable et explicite
-        model = genai.GenerativeModel("gemini-1.0-pro")
-
-        # Étape 3 : Générer le contenu
-        response = model.generate_content(prompt)
+        # On utilise le nom de modèle de votre snippet
+        response = client.models.generate_content(
+            model="models/gemini-1.5-flash",  # Nom complet du modèle
+            contents=prompt,
+        )
 
         html_content: str = response.text.strip()
         if html_content.startswith("```html"):
