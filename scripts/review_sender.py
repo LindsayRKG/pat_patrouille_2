@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from typing import List, Optional
 
 # On utilise bien la bibliothèque 'google-generativeai'
-from google import generativeai as genai  # type: ignore
+from google import genai  # type: ignore
 
 # --- Configuration ---
 GEMINI_API_KEY: str = os.environ.get("GEMINI_API_KEY", "")
@@ -70,8 +70,8 @@ def get_ai_review(prompt: str) -> str:
     try:
         genai.configure(api_key=GEMINI_API_KEY)
 
-        # --- CORRECTION FINALE : On utilise le modèle standard 'gemini-pro' ---
-        model = genai.GenerativeModel("gemini-pro")
+        # --- CORRECTION FINALE : Utilisation du nom de modèle le plus stable et explicite ---
+        model = genai.GenerativeModel("gemini-1.5-flash")
 
         response = model.generate_content(prompt)
 
@@ -85,7 +85,6 @@ def get_ai_review(prompt: str) -> str:
 
 def send_email(recipient: str, subject: str, html_body: str) -> None:
     """Envoie l'email HTML via SMTP (Gmail)."""
-    # Le reste de la fonction est identique et correct
     try:
         msg = MIMEMultipart("alternative")
         msg["From"] = SENDER_EMAIL
