@@ -59,7 +59,7 @@ def resoudre() -> str:
         b = float(request.form["b"])
         c = float(request.form["c"])
     except (ValueError, KeyError):
-        flash("Entrée invalide. Veuillez fournir trois nombres.", "error")
+        flash("Entrée invalide. Veuillez fournir trois nombres.", "erreur")
         return render_template("index.html")
 
     resultat = resoudre_equation_second_degre(a, b, c)
