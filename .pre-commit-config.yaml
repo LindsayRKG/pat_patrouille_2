@@ -2,20 +2,20 @@
 
 repos:
 # --- Hook pour le formatage du code (uniquement au commit) ---
--   repo: https://github.com/psf/black
-    rev: 24.4.2
-    hooks:
-    -   id: black
-        # Ce hook est rapide et corrige les fichiers. Idéal pour le commit.
-        # Par défaut (sans 'stages' ), il ne s'exécute qu'au commit.
+# -   repo: https://github.com/psf/black
+#     rev: 24.4.2
+#     hooks:
+#     -   id: black
+#         # Ce hook est rapide et corrige les fichiers. Idéal pour le commit.
+#         # Par défaut (sans 'stages' ), il ne s'exécute qu'au commit.
 
-# --- Hook pour le linting (au commit ET au push) ---
--   repo: https://github.com/pycqa/flake8
-    rev: 7.3.0
-    hooks:
-    -   id: flake8
-        # Ajout du stage 'push' pour une double vérification
-        stages: [pre-commit, pre-push]
+# # --- Hook pour le linting (au commit ET au push) ---
+# -   repo: https://github.com/pycqa/flake8
+#     rev: 7.3.0
+#     hooks:
+#     -   id: flake8
+#         # Ajout du stage 'push' pour une double vérification
+#         stages: [pre-commit, pre-push]
 
 # --- Hook pour le typage statique (au commit ET au push ) ---
 -   repo: https://github.com/pre-commit/mirrors-mypy

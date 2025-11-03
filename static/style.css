@@ -1,3 +1,4 @@
+
 /* static/style.css - Version COMPLÈTE */
 :root {
     --primary-color: #3498db;
@@ -419,3 +420,285 @@ footer {
         font-size: 16px; /* Empêche le zoom sur iOS */
     }
 }
+/* static/style.css - Modern & Premium Design */
+
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --primary-light: #818cf8;
+  --secondary: #8b5cf6;
+  --accent: #ec4899;
+  --success: #10b981;
+  --error: #ef4444;
+  --background: #0f172a;
+  --surface: #1e293b;
+  --surface-light: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --border: #475569;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  background: linear-gradient(135deg, var(--background) 0%, #1a1f3a 50%, var(--surface) 100%);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Animated background pattern */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  text-align: center;
+  padding: 3rem 1rem;
+  box-shadow: 0 10px 40px rgba(99, 102, 241, 0.2);
+  position: relative;
+  z-index: 10;
+}
+
+header h1 {
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+main {
+  flex: 1;
+  max-width: 650px;
+  width: 100%;
+  margin: 3rem auto;
+  padding: 2.5rem;
+  background: var(--surface);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
+  position: relative;
+  z-index: 2;
+}
+
+h2 {
+  color: var(--primary-light);
+  margin-bottom: 2rem;
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+h3 {
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.equation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 40px;
+  font-size: 1.1rem;
+}
+
+/* Enhanced input styling with gradient border effect */
+input[type="number"] {
+  padding: 0.875rem 1rem;
+  background: var(--surface-light);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  flex: 1;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+input[type="number"]:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+input[type="number"]:hover {
+  border-color: var(--primary);
+}
+
+/* Premium button styling with gradient and animation */
+button {
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.5px;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.flash {
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  border-left: 4px solid;
+  animation: slideIn 0.3s ease;
+}
+
+/* Error message styling */
+.flash.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  border-left-color: var(--error);
+  border: 1px solid var(--error);
+  border-left: 4px solid var(--error);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-box {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-top: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.result-box p {
+  font-size: 1.2rem;
+  margin: 0.75rem 0;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Stylish back link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  color: var(--primary-light);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.back-link:hover {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: var(--primary);
+  padding-left: 1.25rem;
+}
+
+footer {
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 2rem 1rem;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+  position: relative;
+  z-index: 10;
+}
+
+footer p {
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+}
+
+/* Responsive design improvements */
+@media (max-width: 640px) {
+  header {
+    padding: 2rem 1rem;
+  }
+
+  header h1 {
+    font-size: 1.5rem;
+  }
+
+  main {
+    margin: 1.5rem;
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .form-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-group label {
+    min-width: auto;
+    margin-bottom: 0.5rem;
+  }
+
+  input[type="number"] {
+    width: 100%;
+  }
+}
+

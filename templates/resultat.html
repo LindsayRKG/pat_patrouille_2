@@ -1,6 +1,7 @@
 <!-- templates/resultat.html -->
 {% extends "base.html" %}
 
+<<<<<<< HEAD
 {% block title %}Résultats de l'Équation{% endblock %}
 
 {% block content %}
@@ -66,3 +67,28 @@
     </button>
 </div>
 {% endblock %}
+=======
+{% block title %}Résultat - Solveur{% endblock %}
+
+{% block content %}
+    <!-- Better result display with emphasis -->
+    <h2>Résultat de votre équation</h2>
+    <p style="color: #cbd5e1; margin-bottom: 1.5rem;">{{ a }}x² + {{ b }}x + {{ c }} = 0</p>
+
+    <!-- Enhanced result box styling -->
+    <div class="result-box">
+        {% set racine1, racine2 = resultat %}
+        {% if racine1 == racine2 %}
+            <h3>✓ Racine double</h3>
+            <p>x₁ = x₂ = <strong>{{ formater_racine(racine1) }}</strong></p>
+        {% else %}
+            <h3>✓ Racines distinctes</h3>
+            <p>x₁ = <strong>{{ formater_racine(racine1) }}</strong></p>
+            <p>x₂ = <strong>{{ formater_racine(racine2) }}</strong></p>
+        {% endif %}
+    </div>
+
+    <!-- Styled back link -->
+    <a href="/" class="back-link">← Nouvelle équation</a>
+{% endblock %}
+>>>>>>> feature/AymerickBaba
