@@ -70,9 +70,9 @@ def get_ai_review(prompt: str) -> str:
     try:
         genai.configure(api_key=GEMINI_API_KEY)
 
-        # --- CORRECTION : Utilisation du modèle 'gemini-pro' ---
-        # C'est le modèle standard, stable et éprouvé pour les tâches textuelles.
-        model = genai.GenerativeModel("gemini-pro")
+        # --- CORRECTION FINALE : Utilisation du modèle le plus stable ---
+        # 'gemini-pro-vision' est largement disponible et gère parfaitement le texte.
+        model = genai.GenerativeModel("gemini-pro-vision")
 
         response = model.generate_content(prompt)
 
