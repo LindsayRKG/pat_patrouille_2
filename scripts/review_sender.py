@@ -7,7 +7,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import List, Optional
 
-# google-generativeai n'a pas de stubs officiels, on ignore l'erreur mypy.
 from google import generativeai as genai  # type: ignore
 
 # --- Configuration ---
@@ -20,18 +19,16 @@ if not all([GEMINI_API_KEY, GMAIL_APP_PASSWORD, SENDER_EMAIL]):
     sys.exit(1)
 
 # --- Récupération des arguments ---
-# On attend maintenant 3 arguments, le 3ème est optionnel
 if len(sys.argv) < 3:
     print("Erreur: Email du destinataire et fichiers modifiés sont requis.")
     sys.exit(1)
 
 RECIPIENT_EMAIL: str = sys.argv[1]
 CHANGED_FILES: List[str] = sys.argv[2].split()
-# Le statut du job précédent. Peut être 'success' ou 'failure'.
 PREVIOUS_JOB_STATUS: Optional[str] = sys.argv[3] if len(sys.argv) > 3 else None
 
 
-# --- Fonctions (inchangées) ---
+# --- Fonctions d'aide ---
 def get_file_content(file_path: str) -> str:
     """Lit les 100 premières lignes d'un fichier."""
     try:
@@ -39,32 +36,34 @@ def get_file_content(file_path: str) -> str:
             content = "".join(f.readlines()[:100])
         return f"--- Contenu du fichier: {file_path} ---\n{content}\n"
     except Exception as e:
-        error_message = (
-            f"--- Impossible de lire le fichier: {file_path} (Erreur: {e}) ---\n"
-        )
-        return error_message
+        return f"--- Impossible de lire le fichier: {file_path} (Erreur: {e}) ---\n"
 
 
 def generate_prompt(changed_files: List[str]) -> str:
     """Génère le prompt pour l'IA en incluant le contenu des fichiers."""
-    prompt_intro = (
-        "Vous êtes un expert en revue de code. Votre tâche est d'analyser "
-        "les changements de code suivants. Votre réponse doit être **uniquement** "
-        "un code HTML complet et esthétique pour un e-mail de feedback. "
-        "Si le code est bon, félicitez l'auteur. S'il y a des erreurs, "
-        "expliquez-les clairement. Le HTML doit utiliser des styles en ligne."
+    # On coupe la longue chaîne de caractères en plusieurs parties
+    prompt = (
+        "Vous êtes un expert en revue de code. Votre tâche est d'analyser les "
+        "changements de code suivants, en vous concentrant sur la qualité, la "
+        "cohérence, les erreurs potentielles et les améliorations. Après "
+        "l'analyse, vous devez générer une réponse **uniquement** sous forme "
+        "de code HTML complet et esthétique pour un e-mail de feedback. "
+        "L'e-mail doit être très beau, professionnel et convivial. Si le code "
+        "est impeccable, dites-le. S'il y a des erreurs ou des suggestions, "
+        "mentionnez-les clairement, en indiquant les lignes si possible, et "
+        "proposez des corrections. Le code HTML doit être complet (avec "
+        "<html>, <body>, etc.) et utiliser des styles en ligne (CSS) pour "
+        "garantir un bon affichage. Utilisez une palette de couleurs agréable."
+        "\n\n"
+        "--- Fichiers Modifiés ---\n"
     )
-    prompt_parts: List[str] = [
-        prompt_intro,
-        "\n\n--- Fichiers Modifiés ---\n",
-    ]
     for file in changed_files:
         if file.startswith(".github/") or file.endswith(
             (".png", ".jpg", ".gif", ".bin")
         ):
             continue
-        prompt_parts.append(get_file_content(file))
-    return "".join(prompt_parts)
+        prompt += get_file_content(file)
+    return prompt
 
 
 def get_ai_review(prompt: str) -> str:
@@ -72,14 +71,19 @@ def get_ai_review(prompt: str) -> str:
     try:
         client = genai.Client(api_key=GEMINI_API_KEY)
         response = client.models.generate_content(
-            model="gemini-2.5-flash", contents=prompt
+            model="models/gemini-2.5-flash",
+            contents=prompt,
         )
         html_content: str = response.text.strip()
         if html_content.startswith("```html"):
             html_content = html_content.strip("```html").strip("```").strip()
         return html_content
     except Exception as e:
-        return f"<h1>Erreur d'API Gemini</h1><p>Erreur: {e}</p>"
+        # On coupe le long message d'erreur
+        return (
+            "<h1>Erreur d'API Gemini</h1>"
+            f"<p>Impossible d'obtenir la revue de code. Erreur: {e}</p>"
+        )
 
 
 def send_email(recipient: str, subject: str, html_body: str) -> None:
@@ -97,31 +101,30 @@ def send_email(recipient: str, subject: str, html_body: str) -> None:
         server.close()
         print(f"Succès: Email de revue de code envoyé à {recipient}")
     except Exception as e:
+        # On coupe le long message d'erreur
         print(
             f"Erreur: Échec de l'envoi de l'email à {recipient}. "
-            f"Erreur: {e}"
+            f"Vérifiez le mot de passe d'application Gmail. Erreur: {e}"
         )
         print("\n--- Contenu HTML non envoyé (pour débogage) ---\n")
         print(html_body)
         print("\n----------------------------------------------------\n")
 
 
-# --- Logique principale (modifiée) ---
+# --- Logique principale ---
 if __name__ == "__main__":
     print(f"Début de l'analyse pour le push de: {RECIPIENT_EMAIL}")
     print(f"Statut du job de vérification: {PREVIOUS_JOB_STATUS}")
 
-    # 1. Déterminer le sujet de l'email en fonction du statut
     if PREVIOUS_JOB_STATUS == "failure":
-        email_subject = "❌ Action Requise : Votre push a échoué aux vérifications de qualité"
+        email_subject = (
+            "❌ Action Requise : Votre push a échoué aux vérifications de qualité"
+        )
     elif PREVIOUS_JOB_STATUS == "success":
         email_subject = "✅ Revue de Code Automatisée - Push réussi"
     else:
         email_subject = "Revue de Code Automatisée - Push sur ai-projet-git"
 
-    # 2. Préparer le prompt et obtenir la revue de l'IA
     review_prompt = generate_prompt(CHANGED_FILES)
     html_review = get_ai_review(review_prompt)
-
-    # 3. Envoyer l'email
     send_email(RECIPIENT_EMAIL, email_subject, html_review)

@@ -1,31 +1,27 @@
 # .pre-commit-config.yaml
 
 repos:
-# --- Hook pour le formatage du code (uniquement au commit) ---
+# --- Hook pour le formatage du code (TOUJOURS DÉSACTIVÉ) ---
 # -   repo: https://github.com/psf/black
 #     rev: 24.4.2
 #     hooks:
 #     -   id: black
-#         # Ce hook est rapide et corrige les fichiers. Idéal pour le commit.
-#         # Par défaut (sans 'stages' ), il ne s'exécute qu'au commit.
 
-# # --- Hook pour le linting (au commit ET au push) ---
-# -   repo: https://github.com/pycqa/flake8
-#     rev: 7.3.0
-#     hooks:
-#     -   id: flake8
-#         # Ajout du stage 'push' pour une double vérification
-#         stages: [pre-commit, pre-push]
+# --- Hook pour le linting (RÉACTIVÉ ) ---
+-   repo: https://github.com/pycqa/flake8
+    rev: 7.1.0   # Version récente de flake8
+    hooks:
+    -   id: flake8
+        # flake8 lira automatiquement notre fichier .flake8
+        stages: [pre-commit, pre-push]
 
-# --- Hook pour le typage statique (au commit ET au push ) ---
+# --- Hook pour le typage statique (TOUJOURS ACTIF ) ---
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.10.0 # J'ai remis v1.10.0 qui est stable, mais v1.18.2 est aussi un bon choix.
+    rev: v1.10.0
     hooks:
     -   id: mypy
         args: [--strict]
         additional_dependencies: [
-            'types-flask'
+            'types-flask',
         ]
-        # Ajout du stage 'push' pour la validation finale
         stages: [pre-commit, pre-push]
-
