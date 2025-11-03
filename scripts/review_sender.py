@@ -9,7 +9,7 @@ from typing import List, Optional
 
 # On utilise bien la bibliothèque 'google-generativeai'
 # et on ignore les erreurs de type car elle n'a pas de stubs
-from google import genai  # type: ignore
+from google import generativeai as genai  # type: ignore
 
 # --- Configuration ---
 GEMINI_API_KEY: str = os.environ.get("GEMINI_API_KEY", "")
@@ -30,7 +30,7 @@ CHANGED_FILES: List[str] = sys.argv[2].split()
 PREVIOUS_JOB_STATUS: Optional[str] = sys.argv[3] if len(sys.argv) > 3 else None
 
 
-# --- Fonctions d'aide ---
+# --- Fonctions d'aide (inspirées de votre code) ---
 def get_file_content(file_path: str) -> str:
     """Lit les 100 premières lignes d'un fichier."""
     try:
@@ -38,44 +38,42 @@ def get_file_content(file_path: str) -> str:
             content = "".join(f.readlines()[:100])
         return f"--- Contenu du fichier: {file_path} ---\n{content}\n"
     except Exception as e:
-        error_message = (
-            f"--- Impossible de lire le fichier: {file_path} (Erreur: {e}) ---\n"
-        )
-        return error_message
+        return f"--- Impossible de lire le fichier: {file_path} (Erreur: {e}) ---\n"
 
 
 def generate_prompt(changed_files: List[str]) -> str:
     """Génère le prompt pour l'IA en incluant le contenu des fichiers."""
-    prompt_intro = (
-        "Vous êtes un expert en revue de code. Votre tâche est d'analyser "
-        "les changements de code suivants. Votre réponse doit être **uniquement** "
-        "un code HTML complet et esthétique pour un e-mail de feedback. "
-        "Si le code est bon, félicitez l'auteur. S'il y a des erreurs, "
-        "expliquez-les clairement. Le HTML doit utiliser des styles en ligne."
+    prompt = (
+        "Vous êtes un expert en revue de code. Votre tâche est d'analyser les changements de code suivants, "
+        "en vous concentrant sur la qualité, la cohérence, les erreurs potentielles et les améliorations. "
+        "Après l'analyse, vous devez générer une réponse **uniquement** sous forme de code HTML complet et esthétique "
+        "pour un e-mail de feedback. L'e-mail doit être très beau, professionnel et convivial. "
+        "Si le code est impeccable, dites-le. S'il y a des erreurs ou des suggestions, mentionnez-les clairement, "
+        "en indiquant les lignes si possible, et proposez des corrections. "
+        "Le code HTML doit être complet (avec <html>, <body>, etc.) et utiliser des styles en ligne (CSS) "
+        "pour garantir un bon affichage dans tous les clients de messagerie. Utilisez une palette de couleurs agréable (par exemple, bleu, vert, gris clair)."
+        "\n\n"
+        "--- Fichiers Modifiés ---\n"
     )
-    prompt_parts: List[str] = [
-        prompt_intro,
-        "\n\n--- Fichiers Modifiés ---\n",
-    ]
     for file in changed_files:
         if file.startswith(".github/") or file.endswith(
             (".png", ".jpg", ".gif", ".bin")
         ):
             continue
-        prompt_parts.append(get_file_content(file))
-    return "".join(prompt_parts)
+        prompt += get_file_content(file)
+    return prompt
 
 
-# --- FONCTION CORRIGÉE SELON VOTRE SNIPPET OFFICIEL ---
+# --- FONCTION CORRIGÉE SELON VOTRE CODE DE RÉFÉRENCE ---
 def get_ai_review(prompt: str) -> str:
     """Appelle l'API Gemini pour obtenir la revue de code HTML."""
     try:
-        # On utilise la syntaxe avec genai.Client() comme demandé
+        # On utilise la syntaxe genai.Client() comme dans votre code
         client = genai.Client(api_key=GEMINI_API_KEY)
 
-        # On utilise le nom de modèle de votre snippet
+        # On utilise le nom de modèle de votre code, en ajoutant le préfixe 'models/'
         response = client.models.generate_content(
-            model="models/gemini-1.5-flash",  # Nom complet du modèle
+            model="models/gemini-1.5-flash",
             contents=prompt,
         )
 
@@ -84,7 +82,7 @@ def get_ai_review(prompt: str) -> str:
             html_content = html_content.strip("```html").strip("```").strip()
         return html_content
     except Exception as e:
-        return f"<h1>Erreur d'API Gemini</h1><p>Impossible d'obtenir la revue de code. Détails de l'erreur : {e}</p>"
+        return f"<h1>Erreur d'API Gemini</h1><p>Impossible d'obtenir la revue de code. Erreur: {e}</p>"
 
 
 def send_email(recipient: str, subject: str, html_body: str) -> None:
@@ -102,10 +100,7 @@ def send_email(recipient: str, subject: str, html_body: str) -> None:
         server.close()
         print(f"Succès: Email de revue de code envoyé à {recipient}")
     except Exception as e:
-        print(
-            f"Erreur: Échec de l'envoi de l'email à {recipient}. "
-            f"Erreur: {e}"
-        )
+        print(f"Erreur: Échec de l'envoi de l'email à {recipient}. Erreur: {e}")
         print("\n--- Contenu HTML non envoyé (pour débogage) ---\n")
         print(html_body)
         print("\n----------------------------------------------------\n")
