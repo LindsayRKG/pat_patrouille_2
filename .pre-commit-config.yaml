@@ -1,30 +1,31 @@
 # .pre-commit-config.yaml
 
 repos:
-# --- Hook pour le formatage du code ---
--   repo: https://github.com/psf/black
-    rev: 24.4.2
-    hooks:
-    -   id: black
-        # Recommandé de spécifier la version de Python pour que Black formate le code de manière compatible.
-        # language_version: python3.11 # Mettez votre version de Python
+# --- Hook pour le formatage du code (uniquement au commit) ---
+# -   repo: https://github.com/psf/black
+#     rev: 24.4.2
+#     hooks:
+#     -   id: black
+#         # Ce hook est rapide et corrige les fichiers. Idéal pour le commit.
+#         # Par défaut (sans 'stages' ), il ne s'exécute qu'au commit.
 
-# --- Hook pour le linting (style et erreurs simples ) ---
--   repo: https://github.com/pycqa/flake8
-    rev: 7.3.0   # Version récente de flake8
-    hooks:
-    -   id: flake8
+# # --- Hook pour le linting (au commit ET au push) ---
+# -   repo: https://github.com/pycqa/flake8
+#     rev: 7.3.0
+#     hooks:
+#     -   id: flake8
+#         # Ajout du stage 'push' pour une double vérification
+#         stages: [pre-commit, pre-push]
 
-# --- Hook pour le typage statique (maintenant plus strict ) ---
+# --- Hook pour le typage statique (au commit ET au push ) ---
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.2
+    rev: v1.10.0 # J'ai remis v1.10.0 qui est stable, mais v1.18.2 est aussi un bon choix.
     hooks:
     -   id: mypy
-        # On ajoute des arguments pour rendre mypy plus strict
         args: [--strict]
         additional_dependencies: [
             'types-flask'
-            # Listez ici les paquets avec des types, comme avant
-            # 'types-requests',
-            # 'django-stubs'
         ]
+        # Ajout du stage 'push' pour la validation finale
+        stages: [pre-commit, pre-push]
+

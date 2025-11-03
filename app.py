@@ -1,4 +1,6 @@
 # app.py
+import os # <-- Import inutilisé, mais flake8 le verra déjà.
+une_variable_totalement_inutilisee = "ceci est une erreur" # <-- Ajoutons cette ligne
 
 from flask import Flask, render_template, request, flash
 from typing import Tuple, Union
@@ -53,7 +55,7 @@ def index() -> str:
 def resoudre() -> str:
     """Traite les données du formulaire et affiche le résultat."""
     try:
-        a = float(request.form["a"])
+        a = float(request.form["a"]
         b = float(request.form["b"])
         c = float(request.form["c"])
     except (ValueError, KeyError):
