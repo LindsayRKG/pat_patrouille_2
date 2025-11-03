@@ -20,18 +20,16 @@ if not all([GEMINI_API_KEY, GMAIL_APP_PASSWORD, SENDER_EMAIL]):
     sys.exit(1)
 
 # --- Récupération des arguments ---
-# On attend maintenant 3 arguments, le 3ème est optionnel
 if len(sys.argv) < 3:
     print("Erreur: Email du destinataire et fichiers modifiés sont requis.")
     sys.exit(1)
 
 RECIPIENT_EMAIL: str = sys.argv[1]
 CHANGED_FILES: List[str] = sys.argv[2].split()
-# Le statut du job précédent. Peut être 'success' ou 'failure'.
 PREVIOUS_JOB_STATUS: Optional[str] = sys.argv[3] if len(sys.argv) > 3 else None
 
 
-# --- Fonctions (inchangées) ---
+# --- Fonctions d'aide ---
 def get_file_content(file_path: str) -> str:
     """Lit les 100 premières lignes d'un fichier."""
     try:
@@ -67,19 +65,26 @@ def generate_prompt(changed_files: List[str]) -> str:
     return "".join(prompt_parts)
 
 
+# --- FONCTION MISE À JOUR ---
 def get_ai_review(prompt: str) -> str:
     """Appelle l'API Gemini pour obtenir la revue de code HTML."""
     try:
-        client = genai.Client(api_key=GEMINI_API_KEY)
-        response = client.models.generate_content(
-            model="gemini-2.5-flash", contents=prompt
-        )
+        # Étape 1 : Configurer l'API avec la clé
+        genai.configure(api_key=GEMINI_API_KEY)
+
+        # Étape 2 : Créer le modèle
+        model = genai.GenerativeModel("gemini-1.5-flash") # Utilisation du modèle recommandé
+
+        # Étape 3 : Générer le contenu
+        response = model.generate_content(prompt)
+
         html_content: str = response.text.strip()
         if html_content.startswith("```html"):
             html_content = html_content.strip("```html").strip("```").strip()
         return html_content
     except Exception as e:
-        return f"<h1>Erreur d'API Gemini</h1><p>Erreur: {e}</p>"
+        # On retourne une erreur plus détaillée
+        return f"<h1>Erreur d'API Gemini</h1><p>Impossible d'obtenir la revue de code. Détails de l'erreur : {e}</p>"
 
 
 def send_email(recipient: str, subject: str, html_body: str) -> None:
@@ -106,12 +111,11 @@ def send_email(recipient: str, subject: str, html_body: str) -> None:
         print("\n----------------------------------------------------\n")
 
 
-# --- Logique principale (modifiée) ---
+# --- Logique principale ---
 if __name__ == "__main__":
     print(f"Début de l'analyse pour le push de: {RECIPIENT_EMAIL}")
     print(f"Statut du job de vérification: {PREVIOUS_JOB_STATUS}")
 
-    # 1. Déterminer le sujet de l'email en fonction du statut
     if PREVIOUS_JOB_STATUS == "failure":
         email_subject = "❌ Action Requise : Votre push a échoué aux vérifications de qualité"
     elif PREVIOUS_JOB_STATUS == "success":
@@ -119,9 +123,6 @@ if __name__ == "__main__":
     else:
         email_subject = "Revue de Code Automatisée - Push sur ai-projet-git"
 
-    # 2. Préparer le prompt et obtenir la revue de l'IA
     review_prompt = generate_prompt(CHANGED_FILES)
     html_review = get_ai_review(review_prompt)
-
-    # 3. Envoyer l'email
     send_email(RECIPIENT_EMAIL, email_subject, html_review)
