@@ -7,8 +7,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import List, Optional
 
-# On utilise bien la bibliothèque 'google-generativeai'
-# et on ignore les erreurs de type car elle n'a pas de stubs
+# On importe le paquet et on le renomme "genai" pour l'utiliser dans le code
 from google import generativeai as genai  # type: ignore
 
 # --- Configuration ---
@@ -30,7 +29,7 @@ CHANGED_FILES: List[str] = sys.argv[2].split()
 PREVIOUS_JOB_STATUS: Optional[str] = sys.argv[3] if len(sys.argv) > 3 else None
 
 
-# --- Fonctions d'aide (inspirées de votre code) ---
+# --- Fonctions d'aide ---
 def get_file_content(file_path: str) -> str:
     """Lit les 100 premières lignes d'un fichier."""
     try:
@@ -64,16 +63,16 @@ def generate_prompt(changed_files: List[str]) -> str:
     return prompt
 
 
-# --- FONCTION CORRIGÉE SELON VOTRE CODE DE RÉFÉRENCE ---
+# --- FONCTION CORRIGÉE SELON LA SYNTAXE COMPATIBLE ---
 def get_ai_review(prompt: str) -> str:
     """Appelle l'API Gemini pour obtenir la revue de code HTML."""
     try:
-        # On utilise la syntaxe genai.Client() comme dans votre code
+        # On utilise la syntaxe genai.Client() qui correspond à la version 0.4.0
         client = genai.Client(api_key=GEMINI_API_KEY)
 
-        # On utilise le nom de modèle de votre code, en ajoutant le préfixe 'models/'
+        # On utilise un nom de modèle compatible avec cette version
         response = client.models.generate_content(
-            model="models/gemini-1.5-flash",
+            model="models/gemini-pro",  # 'gemini-pro' est le plus standard
             contents=prompt,
         )
 
