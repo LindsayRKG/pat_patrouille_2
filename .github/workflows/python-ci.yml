@@ -24,18 +24,16 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+
+    # --- CORRECTION ICI ---
+    # On lance mypy en tant que module Python pour garantir qu'il soit trouvé.
     - name: Lancement de la vérification de type avec Mypy
-      run: mypy . --strict
+      run: python -m mypy . --strict
 
   # --- JOB 2 : REVUE DE CODE PAR IA ET ENVOI D'EMAIL ---
   ai-code-review:
-    # 'needs' définit la dépendance, le job attend que 'type-checking' se termine.
     needs: type-checking
-    
-    # CONDITION UNIQUE ET CORRECTE :
-    # S'exécute toujours (après le job 'needs') ET seulement si l'événement est un 'push'.
     if: always() && github.event_name == 'push'
-    
     runs-on: ubuntu-latest
     steps:
     - name: Récupération du code
