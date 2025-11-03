@@ -88,3 +88,18 @@ Et c'est tout ! Votre environnement est prêt.
 
 ---
 
+###  Prérequis
+
+- Python ≥ 3.14  
+- pip ≥ 25.x  
+- Il est fortement recommandé de travailler dans un **environnement virtuel**.
+
+```bash
+# Créez un environnement virtuel (si ce n'est pas déjà fait)
+python -m venv .venv
+
+# Activez-le
+# Sur Windows (PowerShell/Git Bash)
+source .venv/Scripts/activate
+# Sur macOS/Linux
+source .venv/bin/activate
