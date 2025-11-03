@@ -10,31 +10,31 @@ on:
 
 jobs:
   # --- JOB 1 : VÉRIFICATION DU TYPAGE ---
-  type-checking: # J'ai renommé le job pour qu'il soit plus clair
+  type-checking:
     runs-on: ubuntu-latest
     steps:
     - name: Récupération du code
       uses: actions/checkout@v4
-
     - name: Mise en place de Python 3.11
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         cache: 'pip'
-
     - name: Installation des dépendances
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-
-    # Étape simplifiée : on ne lance que mypy
     - name: Lancement de la vérification de type avec Mypy
       run: mypy . --strict
 
   # --- JOB 2 : REVUE DE CODE PAR IA ET ENVOI D'EMAIL ---
   ai-code-review:
     if: github.event_name == 'push'
-    needs: type-checking # Dépend du succès de la vérification de type
+    # 'needs' définit la dépendance, le job attend que 'type-checking' se termine.
+    needs: type-checking
+    # 'if: always()' garantit que ce job s'exécute MÊME SI 'type-checking' a échoué.
+    if: always() && github.event_name == 'push'
+    
     runs-on: ubuntu-latest
     steps:
     - name: Récupération du code
@@ -53,8 +53,12 @@ jobs:
 
     - name: Exécution du script de revue de code
       run: |
-        FILES_CHANGED=$(git diff --name-only HEAD~1 HEAD )
-        python scripts/review_sender.py "${{ github.event.pusher.email }}" "$FILES_CHANGED"
+        FILES_CHANGED=$(git diff --name-only HEAD~1 HEAD)
+        # On passe le statut du job précédent comme 3ème argument
+        python scripts/review_sender.py \
+          "${{ github.event.pusher.email }}" \
+          "$FILES_CHANGED" \
+          "${{ needs.type-checking.result }}"
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}

@@ -4,9 +4,13 @@
 {% block title %}Accueil - Solveur{% endblock %}
 
 {% block content %}
-    <h2>Entrez les coefficients de l'équation ax² + bx + c = 0</h2>
+    <!-- Improved heading and description -->
+    <h2>Résolvez vos équations du second degré</h2>
+    <p style="color: #cbd5e1; margin-bottom: 2rem; line-height: 1.6;">
+        Entrez les coefficients <strong>a</strong>, <strong>b</strong> et <strong>c</strong> de votre équation au format <strong>ax² + bx + c = 0</strong>
+    </p>
 
-    <!-- Affiche les messages d'erreur flash s'il y en a -->
+    <!-- Better error message display -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -15,19 +19,20 @@
         {% endif %}
     {% endwith %}
 
+    <!-- Enhanced form layout -->
     <form action="/resoudre" method="post" class="equation-form">
         <div class="form-group">
-            <label for="a">a =</label>
-            <input type="number" id="a" name="a" step="any" value="{{ a or '' }}" required>
+            <label for="a">a</label>
+            <input type="number" id="a" name="a" step="any" value="{{ a or '' }}" required placeholder="Coefficient a">
         </div>
         <div class="form-group">
-            <label for="b">b =</label>
-            <input type="number" id="b" name="b" step="any" value="{{ b or '' }}" required>
+            <label for="b">b</label>
+            <input type="number" id="b" name="b" step="any" value="{{ b or '' }}" required placeholder="Coefficient b">
         </div>
         <div class="form-group">
-            <label for="c">c =</label>
-            <input type="number" id="c" name="c" step="any" value="{{ c or '' }}" required>
+            <label for="c">c</label>
+            <input type="number" id="c" name="c" step="any" value="{{ c or '' }}" required placeholder="Coefficient c">
         </div>
-        <button type="submit">Résoudre</button>
+        <button type="submit">Résoudre l'équation</button>
     </form>
 {% endblock %}

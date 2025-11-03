@@ -5,32 +5,33 @@ import sys
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import List
+from typing import List, Optional
 
 # google-generativeai n'a pas de stubs officiels, on ignore l'erreur mypy.
 from google import generativeai as genai  # type: ignore
 
 # --- Configuration ---
-# Récupération des secrets via les variables d'environnement
 GEMINI_API_KEY: str = os.environ.get("GEMINI_API_KEY", "")
 GMAIL_APP_PASSWORD: str = os.environ.get("GMAIL_APP_PASSWORD", "")
 SENDER_EMAIL: str = os.environ.get("SENDER_EMAIL", "")
 
-# Vérification que les secrets sont bien présents
 if not all([GEMINI_API_KEY, GMAIL_APP_PASSWORD, SENDER_EMAIL]):
     print("Erreur: Un ou plusieurs secrets ne sont pas configurés.")
     sys.exit(1)
 
-# Le destinataire et les fichiers sont passés en arguments
+# --- Récupération des arguments ---
+# On attend maintenant 3 arguments, le 3ème est optionnel
 if len(sys.argv) < 3:
     print("Erreur: Email du destinataire et fichiers modifiés sont requis.")
     sys.exit(1)
 
 RECIPIENT_EMAIL: str = sys.argv[1]
 CHANGED_FILES: List[str] = sys.argv[2].split()
+# Le statut du job précédent. Peut être 'success' ou 'failure'.
+PREVIOUS_JOB_STATUS: Optional[str] = sys.argv[3] if len(sys.argv) > 3 else None
 
 
-# --- Fonctions d'aide ---
+# --- Fonctions (inchangées) ---
 def get_file_content(file_path: str) -> str:
     """Lit les 100 premières lignes d'un fichier."""
     try:
@@ -38,7 +39,6 @@ def get_file_content(file_path: str) -> str:
             content = "".join(f.readlines()[:100])
         return f"--- Contenu du fichier: {file_path} ---\n{content}\n"
     except Exception as e:
-        # Ligne coupée manuellement pour satisfaire flake8
         error_message = (
             f"--- Impossible de lire le fichier: {file_path} (Erreur: {e}) ---\n"
         )
@@ -49,30 +49,21 @@ def generate_prompt(changed_files: List[str]) -> str:
     """Génère le prompt pour l'IA en incluant le contenu des fichiers."""
     prompt_intro = (
         "Vous êtes un expert en revue de code. Votre tâche est d'analyser "
-        "les changements de code suivants, en vous concentrant sur la qualité, "
-        "la cohérence, les erreurs potentielles et les améliorations. "
-        "Après l'analyse, vous devez générer une réponse **uniquement** "
-        "sous forme de code HTML complet et esthétique pour un e-mail de "
-        "feedback. L'e-mail doit être très beau, professionnel et convivial. "
-        "Si le code est impeccable, dites-le. S'il y a des erreurs ou des "
-        "suggestions, mentionnez-les clairement, en indiquant les lignes si "
-        "possible, et proposez des corrections. Le code HTML doit être "
-        "complet (avec <html>, <body>, etc.) et utiliser des styles en "
-        "ligne (CSS) pour garantir un bon affichage. Utilisez une palette de "
-        "couleurs agréable (par exemple, bleu, vert, gris clair)."
+        "les changements de code suivants. Votre réponse doit être **uniquement** "
+        "un code HTML complet et esthétique pour un e-mail de feedback. "
+        "Si le code est bon, félicitez l'auteur. S'il y a des erreurs, "
+        "expliquez-les clairement. Le HTML doit utiliser des styles en ligne."
     )
     prompt_parts: List[str] = [
         prompt_intro,
         "\n\n--- Fichiers Modifiés ---\n",
     ]
-
     for file in changed_files:
         if file.startswith(".github/") or file.endswith(
             (".png", ".jpg", ".gif", ".bin")
         ):
             continue
         prompt_parts.append(get_file_content(file))
-
     return "".join(prompt_parts)
 
 
@@ -84,12 +75,9 @@ def get_ai_review(prompt: str) -> str:
             model="gemini-2.5-flash", contents=prompt
         )
         html_content: str = response.text.strip()
-
         if html_content.startswith("```html"):
             html_content = html_content.strip("```html").strip("```").strip()
-
         return html_content
-
     except Exception as e:
         return f"<h1>Erreur d'API Gemini</h1><p>Erreur: {e}</p>"
 
@@ -102,30 +90,38 @@ def send_email(recipient: str, subject: str, html_body: str) -> None:
         msg["To"] = recipient
         msg["Subject"] = subject
         msg.attach(MIMEText(html_body, "html"))
-
         server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
         server.ehlo()
         server.login(SENDER_EMAIL, GMAIL_APP_PASSWORD)
         server.sendmail(SENDER_EMAIL, recipient, msg.as_string())
         server.close()
-
         print(f"Succès: Email de revue de code envoyé à {recipient}")
-
     except Exception as e:
-        # Ligne coupée manuellement pour satisfaire flake8
-        print(f"Erreur: Échec de l'envoi de l'email à {recipient}. " f"Erreur: {e}")
+        print(
+            f"Erreur: Échec de l'envoi de l'email à {recipient}. "
+            f"Erreur: {e}"
+        )
         print("\n--- Contenu HTML non envoyé (pour débogage) ---\n")
         print(html_body)
         print("\n----------------------------------------------------\n")
 
 
-# --- Logique principale ---
+# --- Logique principale (modifiée) ---
 if __name__ == "__main__":
     print(f"Début de l'analyse pour le push de: {RECIPIENT_EMAIL}")
-    # Ligne coupée manuellement pour satisfaire flake8
-    print(f"Fichiers modifiés: {', '.join(CHANGED_FILES)}")
+    print(f"Statut du job de vérification: {PREVIOUS_JOB_STATUS}")
 
+    # 1. Déterminer le sujet de l'email en fonction du statut
+    if PREVIOUS_JOB_STATUS == "failure":
+        email_subject = "❌ Action Requise : Votre push a échoué aux vérifications de qualité"
+    elif PREVIOUS_JOB_STATUS == "success":
+        email_subject = "✅ Revue de Code Automatisée - Push réussi"
+    else:
+        email_subject = "Revue de Code Automatisée - Push sur ai-projet-git"
+
+    # 2. Préparer le prompt et obtenir la revue de l'IA
     review_prompt = generate_prompt(CHANGED_FILES)
     html_review = get_ai_review(review_prompt)
-    email_subject = "Revue de Code Automatisée - Push sur ai-projet-git"
+
+    # 3. Envoyer l'email
     send_email(RECIPIENT_EMAIL, email_subject, html_review)
